@@ -1,0 +1,12 @@
+{
+  "description": "Discord Bot: runs OCaml code via chat",
+  "version": "0.1.0",
+  "scripts": {
+    "start": "forever -w index.js ./src/*.js"
+  },
+  "dependencies": {
+    "discord.js": "^12.1.1",
+    "forever": "^2.0.0",
+    "standard": "^14.3.3"
+  }
+}
