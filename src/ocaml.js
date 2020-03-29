@@ -19,13 +19,16 @@ function spawnOCaml (channel) {
     console.log(output)
     channel.send('```ocaml\n' + removeANSI(output) + '\n```')
     if (output.match(/Error/)) {
+      const output2 = ANSItoMarkdown(output)
+      if (output2.match(/^\s*$/) !== null) return
       channel.send('**Here:**')
-      channel.send(ANSItoMarkdown(output))
+      channel.send(output2)
     }
   })
 
   ocaml.on('close', (code) => {
-    console.log(`child process exited with code ${code}`);
+    console.log(`child process exited with code ${code}`)
+    channel.send(`**Process exited with code ${code}**`)
   })
 
   return ocaml 
