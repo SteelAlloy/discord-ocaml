@@ -1,14 +1,14 @@
 module.exports = {
-  apps : [{
+  apps: [{
     name: 'Discord OCaml',
     script: 'index.js',
 
     // Options reference: https://pm2.keymetrics.io/docs/usage/application-declaration/
-    args: '--unhandled-rejections=strict',
+    // args: '--unhandled-rejections=strict',
     instances: 1,
     autorestart: true,
     // watch: true,
-    watch: ["src"],
+    watch: ['src'],
     max_memory_restart: '1G',
     env: {
       NODE_ENV: 'development'

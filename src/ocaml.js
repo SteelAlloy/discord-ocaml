@@ -1,20 +1,10 @@
-const { exec, spawn } = require('child_process')
+const { spawn } = require('child_process')
 
-function execute (command){
-  return new Promise((resolve, reject) => {
-    exec(command, (err, stdout, _stderr) => err ? reject(err) : resolve(stdout))
-  })
-}
-
-async function getVersion () {
-  return execute('ocaml --version')
-}
-
-function spawnOCaml (channel) {
-  const ocaml = spawn('ocaml')
+function runProcess (channel) {
+  const ocaml = spawn('ocaml', ['-noprompt'])
 
   ocaml.stdout.on('data', (data) => {
-    const output = removeHashtag(data.toString())
+    const output = data.toString()
     if (output.match(/^\s*$/) !== null) return
     console.log(output)
     channel.send('```ocaml\n' + removeANSI(output) + '\n```')
@@ -31,10 +21,10 @@ function spawnOCaml (channel) {
     channel.send(`**Process exited with code ${code}**`)
   })
 
-  return ocaml 
+  return ocaml
 }
 
-function send (process, code) {
+function input (process, code) {
   process.stdin.write(`${addSemicolumn(code)}\r\n`)
 }
 
@@ -52,7 +42,7 @@ function removeANSI (code) {
     .replace(/\x1b\[4m/g, '')
     .replace(/\x1b\[24m/g, '')
 }
- 
+
 function ANSItoMarkdown (code) {
   return code
     .replace(/\x1b\[A/g, '')
@@ -61,8 +51,4 @@ function ANSItoMarkdown (code) {
     .replace(/Error:.*/gs, '')
 }
 
-function removeHashtag (code) {
-  return code.replace(/(# $|#$)/, '')
-}
-
-module.exports = { getVersion, spawnOCaml, send, endProcess, addSemicolumn }
+module.exports = { runProcess, endProcess, input, addSemicolumn }

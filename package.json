@@ -1,12 +1,20 @@
 {
   "description": "Runs OCaml code via chat on Discord",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "scripts": {
-    "start": "pm2 start 0",
-    "start-node": "node index.js --unhandled-rejections=strict"
+    "start": "pm2 start 0"
   },
   "dependencies": {
     "discord.js": "^12.1.1",
+    "pretty-bytes": "^5.3.0"
+  },
+  "standard": {
+    "validate": [
+      "typescript",
+      "javascript"
+    ]
+  },
+  "devDependencies": {
     "standard": "^14.3.3"
   }
 }
