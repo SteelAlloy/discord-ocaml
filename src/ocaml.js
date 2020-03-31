@@ -1,4 +1,6 @@
 /* eslint-disable no-control-regex */
+const fs = require('fs')
+const path = require('path')
 const { spawn } = require('child_process')
 const logger = require('./logger')
 
@@ -6,10 +8,24 @@ const processes = new Map()
 const lastUses = new Map()
 const funcsCalls = new Map()
 const willEnd = new Set()
+const writeStreams = new Map()
 
 function runProcess (channel) {
-  const ocaml = spawn('ocaml', ['-noprompt'])
   const id = channel.id
+  const ocaml = spawn('ocaml', ['-noprompt'])
+
+  const filePath = path.resolve(__dirname, '../generated/', new Date().getTime() + '-' + id + '.ml')
+  const file = fs.createWriteStream(filePath)
+  writeStreams.set(id, file)
+
+  file.on('finish', () => {
+    channel.send({ files: [filePath] }).then(() => {
+      fs.unlink(filePath, (err) => {
+        if (err) throw err
+        logger.info({ message: `File deleted: ${filePath}`, id })
+      })
+    })
+  })
 
   logger.verbose({ message: 'OCaml spawned.', id })
 
@@ -46,10 +62,14 @@ function runProcess (channel) {
   })
 
   ocaml.on('close', (code) => {
+    const file = writeStreams.get(channel.id)
+    file.end()
+
     processes.delete(channel.id)
     lastUses.delete(channel.id)
     funcsCalls.delete(channel.id)
     willEnd.delete(channel.id)
+    writeStreams.delete(channel.id)
 
     if (code !== 0 && code !== null) {
       logger.verbose({ message: `Child process exited with code ${code}`, id })
@@ -83,6 +103,9 @@ function input (channel, code) {
     channel.send(`:no_entry_sign: **Illegal keyword found: __${illegal[0]}__**`)
   } else {
     const process = processes.get(channel.id)
+    const writeStream = writeStreams.get(channel.id)
+
+    writeStream.write(`${code}\r\n`)
     process.stdin.write(`${code}\r\n`)
 
     funcsCalls.set(channel.id, 0)
