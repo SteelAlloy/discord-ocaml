@@ -8,6 +8,7 @@ const aboutCommand = require('./commands/about')
 const getCommand = require('./commands/get')
 const versionCommand = require('./commands/version')
 const debugCommand = require('./commands/debug')
+const ownerCommand = require('./commands/owner')
 
 const client = new Discord.Client()
 
@@ -91,10 +92,8 @@ client.on('message', async message => {
       message.channel.send({ embed: exampleEmbed })
       break
 
-    case 'admin':
-      if (message.author.id === config.ownerID) {
-        message.channel.send('**You are the owner**')
-      }
+    case 'owner':
+      ownerCommand(message, args)
       break
 
     default:

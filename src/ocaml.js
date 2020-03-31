@@ -1,3 +1,4 @@
+/* eslint-disable no-control-regex */
 const { spawn } = require('child_process')
 
 const processes = new Map()
@@ -28,6 +29,7 @@ function runProcess (channel) {
     console.log(`child process exited with code ${code}`)
     processes.delete(channel.id)
     lastUses.delete(channel.id)
+    awaitResponse.delete(channel.id)
     if (code !== 0 && code !== null) {
       channel.send(`:warning: **Process exited with code ${code}.**`)
     } else {
