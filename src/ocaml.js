@@ -40,7 +40,7 @@ function runProcess (channel) {
 
     if (output.match(/^\s*$/) !== null) return
 
-    if (output.length >= 2000) {
+    if (output.length >= 1500) {
       if (!willEnd.has(channel.id)) {
         logger.warn({ message: `The length of the result is too long. Shut down... [${output.length}]`, id: channel.id })
         channel.send(':infinity: **The length of the result is too long. Shut down...**')

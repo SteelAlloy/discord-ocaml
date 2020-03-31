@@ -17,7 +17,7 @@ function delayCoffee (channel) {
     if (ocaml.processes.has(channel.id)) {
       coffee(channel)
     }
-  }, 1000 * 60 * 15)
+  }, 1000 * 60 * 25)
 }
 
 module.exports = { coffeeCommand: coffee, delayCoffee }
