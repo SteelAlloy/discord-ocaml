@@ -3,9 +3,9 @@ const prettyBytes = require('pretty-bytes')
 const { execute } = require('./_utils')
 const { processRunning } = require('../src/processManager')
 const ocaml = require('../src/ocaml')
+const logger = require('../src/logger')
 
 function debug (channel, args) {
-  console.log(args)
   switch (args[0]) {
     case 'process':
       debugProcess(channel)
@@ -25,9 +25,8 @@ function debug (channel, args) {
 async function debugProcess (channel) {
   if (processRunning(channel)) {
     const process = ocaml.processes.get(channel.id)
-    const snapshot = await execute(`ps -p ${process.pid} -o %cpu,%mem,etime,cputime h`)
+    const snapshot = await execute(`ps -p ${process.pid} -o %cpu,%mem,etime,cputime h`, channel)
     const stats = snapshot.replace(/(^\s+|\s+$)/g, '').replace(/\s+/g, ' ').split(' ')
-    console.log(stats)
     const embed = new Discord.MessageEmbed()
       .setColor('#ee760e')
       .setTitle('Process debug')
@@ -37,9 +36,11 @@ async function debugProcess (channel) {
       .addField('Memory usage', stats[1] + ' %', true)
       .addField('Time elasped', stats[2], true)
       .addField('Cumulative CPU time', stats[3], true)
+
+    logger.info({ message: `Process Debug: ${stats}`, id: channel.id })
     channel.send(embed)
   } else {
-    console.log("No process was found for this channel. Couldn't debug process.")
+    logger.info({ message: "No process was found for this channel. Couldn't debug process.", id: channel.id })
     channel.send(":information_source: **No process was found for this channel. Couldn't debug process.**")
   }
 }
@@ -57,6 +58,8 @@ function debugBot (channel) {
     .addField('Used memory', prettyBytes(memory.heapUsed), true)
     .addField('External memory', prettyBytes(memory.external), true)
     .addField('Time spent on CPU', `${cpu.getSeconds()}s${cpu.getMilliseconds()}ms`, true)
+
+  logger.info({ message: `Bot Debug: cpu:${cpu.getTime()}, memory: ${memory}`, id: channel.id })
   channel.send(embed)
 }
 

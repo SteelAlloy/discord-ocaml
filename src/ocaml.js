@@ -1,38 +1,61 @@
 /* eslint-disable no-control-regex */
 const { spawn } = require('child_process')
+const logger = require('./logger')
 
 const processes = new Map()
 const lastUses = new Map()
-const awaitResponse = new Set()
+const funcsCalls = new Map()
+const willEnd = new Set()
 
 function runProcess (channel) {
   const ocaml = spawn('ocaml', ['-noprompt'])
+  const id = channel.id
+
+  logger.info({ message: 'OCaml spawned.', id })
 
   ocaml.stdout.on('data', (data) => {
-    lastUses.set(channel.id, new Date().getTime())
     const output = data.toString()
-    if (!output.match(/Warning/)) {
-      awaitResponse.delete(channel.id)
-    }
+
+    logger.info({ message: `Data received from OCaml: ${output}`, id: channel.id })
+    logger.info({ message: `Last uses: ${lastUses.get(id)}, functions calls: ${funcsCalls.get(id)}, will end: ${willEnd.has(id)}`, id })
+
+    lastUses.set(channel.id, new Date().getTime())
+    funcsCalls.set(channel.id, funcsCalls.get(channel.id) + 1)
+
     if (output.match(/^\s*$/) !== null) return
-    console.log(output)
-    channel.send('```ocaml\n' + removeANSI(output) + '\n```')
-    if (output.match(/Error/)) {
-      const output2 = ANSItoMarkdown(output)
-      if (output2.match(/^\s*$/) !== null) return
-      channel.send('**Here:**')
-      channel.send(output2)
+
+    if (output.length >= 2000) {
+      if (!willEnd.has(channel.id)) {
+        logger.warn({ message: `The length of the result is too long. Shut down... [${output.length}]`, id: channel.id })
+        channel.send(':infinity: **The length of the result is too long. Shut down...**')
+
+        willEnd.add(channel.id)
+        endProcess(processes.get(id))
+      }
+    } else {
+      channel.send('```ocaml\n' + removeANSI(output) + '\n```')
+
+      if (output.match(/Error/)) {
+        const errorOutput = ANSItoMarkdown(output)
+        if (errorOutput.match(/^\s*$/) !== null) return
+
+        channel.send('**Here:**')
+        channel.send(errorOutput)
+      }
     }
   })
 
   ocaml.on('close', (code) => {
-    console.log(`child process exited with code ${code}`)
     processes.delete(channel.id)
     lastUses.delete(channel.id)
-    awaitResponse.delete(channel.id)
+    funcsCalls.delete(channel.id)
+    willEnd.delete(channel.id)
+
     if (code !== 0 && code !== null) {
+      logger.info({ message: `Child process exited with code ${code}`, id })
       channel.send(`:warning: **Process exited with code ${code}.**`)
     } else {
+      logger.warn({ message: `Child process exited with code ${code}`, id })
       channel.send(':white_check_mark: **Process exited without errors.**')
     }
   })
@@ -54,18 +77,25 @@ function illegalKeywords (code) {
 
 function input (channel, code) {
   const illegal = illegalKeywords(code)
+
   if (illegal) {
+    logger.warn({ message: `Illegal keyword found: ${illegal}`, id: channel.id })
     channel.send(`:no_entry_sign: **Illegal keyword found: __${illegal[0]}__**`)
   } else {
     const process = processes.get(channel.id)
-    awaitResponse.add(channel.id)
-    process.stdin.write(`${addSemicolumn(code)}\r\n`)
+    process.stdin.write(`${code}\r\n`)
+
+    funcsCalls.set(channel.id, 0)
+
     setTimeout(() => {
-      if (awaitResponse.has(channel.id)) {
+      const calls = funcsCalls.get(channel.id)
+      if (calls > 20) {
+        logger.warn({ message: `Too many echoes in 100 ms. Shut down... [${calls}]`, id: channel.id })
+        channel.send(':infinity: **Too many echoes in 100 ms. Shut down...**')
+
         endProcess(process)
-        channel.send(':infinity: **Infinite loop detected. Shut down...**')
       }
-    }, 2000)
+    }, 100)
   }
 }
 
@@ -73,7 +103,7 @@ function endProcess (process) {
   process.kill('SIGHUP')
 }
 
-function addSemicolumn (code) {
+function addSemicolon (code) {
   return code.replace(/(;;\s*$|;\s*$|\s*$)/, ';;')
 }
 
@@ -92,4 +122,4 @@ function ANSItoMarkdown (code) {
     .replace(/Error:.*/gs, '')
 }
 
-module.exports = { runProcess, endProcess, input, addSemicolumn, lastUses, processes }
+module.exports = { runProcess, endProcess, input, addSemicolon, lastUses, processes }

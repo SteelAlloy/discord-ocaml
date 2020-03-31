@@ -1,4 +1,5 @@
 const Discord = require('discord.js')
+const logger = require('../src/logger')
 
 const embed = new Discord.MessageEmbed()
   .setColor('#ee760e')
@@ -9,17 +10,21 @@ const embed = new Discord.MessageEmbed()
   // .setAuthor('Some name', 'https://i.imgur.com/wSTFkRM.png', 'https://discord.js.org')
   // .setDescription('Some description here')
   .setThumbnail('https://img.icons8.com/color/96/000000/help--v1.png')
-  .addField('**COMMANDS**',
-  `\`version\`, \`v\`
-  \`help\`, \`h\`
+  .addField('**COMMANDS**', `
   \`start\`, \`run\` 
   \`exit\`, \`end\`, \`quit\`
+  \`r\`, \`reboot\`, \`restart\`
+  \`d\`, \`debug\` \`[bot, process]\`
+  \`v\`, \`version\`
+  \`h\`, \`help\`
   \`get\``, true)
-  .addField('Description',
-  `\`➡️\` OCaml version
+  .addField('Description', `
+  \`➡️\` Create an OCaml process
+  \`➡️\` End the OCaml process
+  \`➡️\` Restart the OCaml process
+  \`➡️\` Debug the bot/ the process
+  \`➡️\` OCaml version
   \`➡️\` Show this help
-  \`➡️\` Spawn OCaml
-  \`➡️\` Exit OCaml
   \`➡️\` Get OCaml in private messages`, true)
   .addField('**DESCRIPTION**', 'Runs OCaml code via chat')
   .addField('**EXAMPLES**',
@@ -27,6 +32,7 @@ const embed = new Discord.MessageEmbed()
   \`# let x = 5;;\``)
 
 function help (channel) {
+  logger.info({ message: 'Help has been requested', id: channel.id })
   channel.send({ embed: embed })
 }
 

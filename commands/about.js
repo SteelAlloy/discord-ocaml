@@ -1,5 +1,6 @@
 const Discord = require('discord.js')
 const info = require('../package.json')
+const logger = require('../src/logger')
 
 function about (channel) {
   const embed = new Discord.MessageEmbed()
@@ -14,6 +15,7 @@ function about (channel) {
     .addField('Version', info.version, true)
     // .setImage('https://i.imgur.com/TGSsq2p.png')
 
+  logger.info({ message: 'About page requested', id: channel.id })
   channel.send(embed)
 }
 

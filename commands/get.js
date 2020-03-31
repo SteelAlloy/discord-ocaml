@@ -1,6 +1,8 @@
-function get (author) {
-  author.send(':camel: **Hi! Type `ocaml h` to show help.**')
-  console.log(author)
+const logger = require('../src/logger')
+
+function get (message) {
+  logger.info({ message: `Help has been requested from ${message.author}`, id: message.channel.id })
+  message.author.send(':camel: **Hi! Type `ocaml h` to show help.**')
 }
 
 module.exports = get

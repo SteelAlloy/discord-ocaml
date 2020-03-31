@@ -1,5 +1,6 @@
 const Discord = require('discord.js')
 
+const logger = require('./src/logger')
 const parse = require('./src/parser')
 const processManager = require('./src/processManager')
 
@@ -15,28 +16,30 @@ const client = new Discord.Client()
 const config = require('./config.json')
 
 client.on('ready', () => {
-  console.log(`Logged in as ${client.user.tag}`)
-  console.log(`Bot has started, with ${client.users.cache.size} users, in ${client.channels.cache.size} channels of ${client.guilds.cache.size} guilds.`)
+  logger.info({ message: `Logged in as ${client.user.tag}` })
+  logger.info({ message: `Bot has started, with ${client.users.cache.size} users, in ${client.channels.cache.size} channels of ${client.guilds.cache.size} guilds.` })
 })
 
 client.once('reconnecting', () => {
-  console.log('Reconnecting!')
+  logger.info({ message: 'Reconnecting!' })
 })
 
 client.once('disconnect', () => {
-  console.log('Disconnect!')
+  logger.info({ message: 'Disconnect!' })
 })
 
 client.on('guildCreate', guild => {
-  console.log(`New guild joined: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`)
+  logger.info({ message: `New guild joined: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!` })
 })
 
 client.on('guildDelete', guild => {
-  console.log(`I have been removed from: ${guild.name} (id: ${guild.id})`)
+  logger.info({ message: `I have been removed from: ${guild.name} (id: ${guild.id})` })
 })
 
 client.on('message', async message => {
   if (message.author.bot) return
+
+  logger.info({ message: `Message received: ${message.content}`, id: message.channel.id })
 
   if (message.content.indexOf(config.toplevelPrefix) === 0) {
     parse(message)
@@ -48,7 +51,7 @@ client.on('message', async message => {
   const command = args.shift().toLowerCase()
   switch (command) {
     case 'get':
-      getCommand(message.author)
+      getCommand(message)
       break
 
     case 'version':
