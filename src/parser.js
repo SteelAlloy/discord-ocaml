@@ -5,7 +5,7 @@ const { processNotRunning, run } = require('./processManager')
 
 function parse (message) {
   if (processNotRunning(message.channel)) {
-    logger.info({ message: 'No process was found for this channel.', id: message.channel.id })
+    logger.verbose({ message: 'No process was found for this channel.', id: message.channel.id })
     message.channel.send(':warning: **No process was found for this channel.**')
 
     run(message.channel)

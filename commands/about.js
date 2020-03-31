@@ -15,7 +15,7 @@ function about (channel) {
     .addField('Version', info.version, true)
     // .setImage('https://i.imgur.com/TGSsq2p.png')
 
-  logger.info({ message: 'About page requested', id: channel.id })
+  logger.verbose({ message: 'About page requested', id: channel.id })
   channel.send(embed)
 }
 

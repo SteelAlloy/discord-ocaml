@@ -11,13 +11,13 @@ function runProcess (channel) {
   const ocaml = spawn('ocaml', ['-noprompt'])
   const id = channel.id
 
-  logger.info({ message: 'OCaml spawned.', id })
+  logger.verbose({ message: 'OCaml spawned.', id })
 
   ocaml.stdout.on('data', (data) => {
     const output = data.toString()
 
-    logger.info({ message: `Data received from OCaml: ${output}`, id: channel.id })
-    logger.info({ message: `Last uses: ${lastUses.get(id)}, functions calls: ${funcsCalls.get(id)}, will end: ${willEnd.has(id)}`, id })
+    logger.info({ message: `Data received from OCaml: ${output.trim()}`, id: channel.id })
+    logger.debug({ message: `Last uses: ${lastUses.get(id)}, functions calls: ${funcsCalls.get(id)}, will end: ${willEnd.has(id)}`, id })
 
     lastUses.set(channel.id, new Date().getTime())
     funcsCalls.set(channel.id, funcsCalls.get(channel.id) + 1)
@@ -52,7 +52,7 @@ function runProcess (channel) {
     willEnd.delete(channel.id)
 
     if (code !== 0 && code !== null) {
-      logger.info({ message: `Child process exited with code ${code}`, id })
+      logger.verbose({ message: `Child process exited with code ${code}`, id })
       channel.send(`:warning: **Process exited with code ${code}.**`)
     } else {
       logger.warn({ message: `Child process exited with code ${code}`, id })

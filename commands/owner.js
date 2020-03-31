@@ -9,6 +9,7 @@ function owner (message, args) {
 
     switch (args[0]) {
       case 'restart':
+      case 'reload':
         logger.warn({ message: 'Restarting Bot...', id: message.channel.id })
         message.channel.send(':octagonal_sign: **Restarting Bot...**')
 

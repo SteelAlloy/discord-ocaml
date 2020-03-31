@@ -39,13 +39,14 @@ client.on('guildDelete', guild => {
 client.on('message', async message => {
   if (message.author.bot) return
 
-  logger.info({ message: `Message received: ${message.content}`, id: message.channel.id })
+  if (message.content.indexOf(config.toplevelPrefix) === 0 || message.content.indexOf(config.prefix) === 0) {
+    logger.info({ message: `${message.author} sent: ${message.content}`, id: message.channel.id })
+  } else return
 
   if (message.content.indexOf(config.toplevelPrefix) === 0) {
     parse(message)
+    return
   }
-
-  if (message.content.indexOf(config.prefix) !== 0) return
 
   const args = message.content.slice(config.prefix.length).trim().split(/ +/g)
   const command = args.shift().toLowerCase()
@@ -109,5 +110,7 @@ const exampleEmbed = new Discord.MessageEmbed()
   .setColor('#ee760e')
   .setTitle(':camel: Help finance the bot and keep this service running!')
   .setURL('https://www.buymeacoffee.com/Oganexon')
+
+console.log('INFO --------- RESTART ---------')
 
 client.login(config.token)

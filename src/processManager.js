@@ -1,4 +1,5 @@
 const ocaml = require('./ocaml')
+const logger = require('./logger')
 
 function processRunning (channel) {
   return ocaml.processes.has(channel.id)
@@ -10,14 +11,17 @@ function processNotRunning (channel) {
 
 function run (channel) {
   if (processRunning(channel)) {
-    console.log('A process is already running.')
+    logger.verbose({ message: 'A process is already running', id: channel.id })
     channel.send(':information_source: **A process is already running.**')
   } else {
     const process = ocaml.runProcess(channel)
+
     ocaml.processes.set(channel.id, process)
     ocaml.lastUses.set(channel.id, new Date().getTime())
+
     standby(channel)
-    console.log('New process running.')
+
+    logger.verbose({ message: 'A new process is running. This process will exit after 10 minutes of inactivity.', id: channel.id })
     channel.send(':information_source: **A new process is running. This process will exit after 10 minutes of inactivity.**')
   }
 }
@@ -25,11 +29,10 @@ function run (channel) {
 function end (channel) {
   if (processRunning(channel)) {
     const process = ocaml.processes.get(channel.id)
-    // ocaml.processes.delete(channel.id)
-    // ocaml.lastUses.delete(channel.id)
+
     ocaml.endProcess(process)
   } else {
-    console.log("No process was found for this channel. Couldn't end process.")
+    logger.verbose({ message: "No process was found for this channel. Couldn't end process.", id: channel.id })
     channel.send(":information_source: **No process was found for this channel. Couldn't end process.**")
   }
 }
@@ -39,9 +42,12 @@ const timeout = 1000 * 60 * 10
 
 function standby (channel) {
   const lastUse = ocaml.lastUses.get(channel.id)
+
   if (lastUse) {
     if (new Date().getTime() - lastUse >= timeout) {
+      logger.verbose({ message: `The process has been inactive for ${timeout / 60000} minutes. It was shut down.`, id: channel.id })
       channel.send(`:clock2: **The process has been inactive for ${timeout / 60000} minutes. It was shut down.**`)
+
       end(channel)
     } else {
       setTimeout(() => standby(channel), interval)

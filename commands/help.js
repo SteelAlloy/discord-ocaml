@@ -32,7 +32,7 @@ const embed = new Discord.MessageEmbed()
   \`# let x = 5;;\``)
 
 function help (channel) {
-  logger.info({ message: 'Help has been requested', id: channel.id })
+  logger.verbose({ message: 'Help has been requested', id: channel.id })
   channel.send({ embed: embed })
 }
 

@@ -1,3 +1,4 @@
+const util = require('util')
 const Discord = require('discord.js')
 const prettyBytes = require('pretty-bytes')
 const { execute } = require('./_utils')
@@ -37,10 +38,10 @@ async function debugProcess (channel) {
       .addField('Time elasped', stats[2], true)
       .addField('Cumulative CPU time', stats[3], true)
 
-    logger.info({ message: `Process Debug: ${stats}`, id: channel.id })
+    logger.debug({ message: `Process Debug: ${util.inspect(stats, { depth: 1, compact: true })}`, id: channel.id })
     channel.send(embed)
   } else {
-    logger.info({ message: "No process was found for this channel. Couldn't debug process.", id: channel.id })
+    logger.verbose({ message: "No process was found for this channel. Couldn't debug process.", id: channel.id })
     channel.send(":information_source: **No process was found for this channel. Couldn't debug process.**")
   }
 }
@@ -59,8 +60,14 @@ function debugBot (channel) {
     .addField('External memory', prettyBytes(memory.external), true)
     .addField('Time spent on CPU', `${cpu.getSeconds()}s${cpu.getMilliseconds()}ms`, true)
 
-  logger.info({ message: `Bot Debug: cpu:${cpu.getTime()}, memory: ${memory}`, id: channel.id })
+  logger.verbose({ message: `Bot Debug: cpu:${cpu.getTime()}, memory: ${util.inspect(memory, { depth: 1, compact: true })}`, id: channel.id })
   channel.send(embed)
 }
+
+setInterval(() => {
+  const cpu = new Date(process.cpuUsage().user / 1000)
+  const memory = process.memoryUsage()
+  logger.silly({ message: `cpu:${cpu.getTime()}, memory: ${util.inspect(memory, { depth: 1, compact: true })}` })
+}, 1000 * 60)
 
 module.exports = debug
