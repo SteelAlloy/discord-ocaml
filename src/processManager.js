@@ -1,5 +1,6 @@
 const ocaml = require('./ocaml')
 const logger = require('./logger')
+const { delayCoffee } = require('./coffee')
 
 function processRunning (channel) {
   return ocaml.processes.has(channel.id)
@@ -20,6 +21,7 @@ function run (channel) {
     ocaml.lastUses.set(channel.id, new Date().getTime())
 
     standby(channel)
+    delayCoffee(channel)
 
     logger.verbose({ message: 'A new process is running. This process will exit after 10 minutes of inactivity.', id: channel.id })
     channel.send(':information_source: **A new process is running. This process will exit after 10 minutes of inactivity.**')

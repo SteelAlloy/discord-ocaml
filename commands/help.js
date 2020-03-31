@@ -12,7 +12,7 @@ const embed = new Discord.MessageEmbed()
   .setThumbnail('https://img.icons8.com/color/96/000000/help--v1.png')
   .addField('**COMMANDS**', `
   \`start\`, \`run\` 
-  \`exit\`, \`end\`, \`quit\`
+  \`end\`, \`exit\`, \`quit\`
   \`r\`, \`reboot\`, \`restart\`
   \`d\`, \`debug\` \`[bot, process]\`
   \`v\`, \`version\`

@@ -10,6 +10,7 @@ const getCommand = require('./commands/get')
 const versionCommand = require('./commands/version')
 const debugCommand = require('./commands/debug')
 const ownerCommand = require('./commands/owner')
+const { coffeeCommand } = require('./src/coffee')
 
 const client = new Discord.Client()
 
@@ -92,8 +93,7 @@ client.on('message', async message => {
       aboutCommand(message.channel)
       break
     case 'coffee':
-      message.channel.send({ files: ['https://cdn.buymeacoffee.com/buttons/default-orange.png'] })
-      message.channel.send({ embed: exampleEmbed })
+      coffeeCommand(message.channel)
       break
 
     case 'owner':
@@ -106,10 +106,6 @@ client.on('message', async message => {
       break
   }
 })
-const exampleEmbed = new Discord.MessageEmbed()
-  .setColor('#ee760e')
-  .setTitle(':camel: Help finance the bot and keep this service running!')
-  .setURL('https://www.buymeacoffee.com/Oganexon')
 
 console.log('INFO --------- RESTART ---------')
 
