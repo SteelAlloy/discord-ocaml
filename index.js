@@ -1,4 +1,5 @@
 const Discord = require('discord.js')
+const rimraf = require('rimraf')
 
 const logger = require('./src/logger')
 const parse = require('./src/parser')
@@ -15,6 +16,11 @@ const { coffeeCommand } = require('./src/coffee')
 const client = new Discord.Client()
 
 const config = require('./config.json')
+
+rimraf('./generated/*', (err) => {
+  if (err) throw err
+  logger.info({ message: 'Cleanup done.' })
+})
 
 client.on('ready', () => {
   logger.info({ message: `Logged in as ${client.user.tag}` })
