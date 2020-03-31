@@ -57,19 +57,20 @@ client.on('message', async message => {
 
     case 'run':
     case 'start':
-      processManager.run(message.channel, true)
+      setTimeout(() => processManager.run(message.channel), 100)
       break
 
+    case 'stop':
     case 'exit':
     case 'end':
-      processManager.end(message.channel, true)
+      processManager.end(message.channel)
       break
 
     case 'reboot':
     case 'restart':
     case 'r':
-      processManager.end(message.channel, true)
-      processManager.run(message.channel, true)
+      processManager.end(message.channel)
+      setTimeout(() => processManager.run(message.channel), 100)
       break
 
     case 'debug':
@@ -85,6 +86,10 @@ client.on('message', async message => {
     case 'about':
       aboutCommand(message.channel)
       break
+    case 'coffee':
+      message.channel.send({ files: ['https://cdn.buymeacoffee.com/buttons/default-orange.png'] })
+      message.channel.send({ embed: exampleEmbed })
+      break
 
     case 'admin':
       if (message.author.id === config.ownerID) {
@@ -93,10 +98,14 @@ client.on('message', async message => {
       break
 
     default:
-      message.channel.send(`**Unknown command: \`${command}\`.**`)
+      message.channel.send(`:grey_question: **Unknown command: \`${command}\`.**`)
       helpCommand(message.channel)
       break
   }
 })
+const exampleEmbed = new Discord.MessageEmbed()
+  .setColor('#ee760e')
+  .setTitle(':camel: Help finance the bot and keep this service running!')
+  .setURL('https://www.buymeacoffee.com/Oganexon')
 
 client.login(config.token)

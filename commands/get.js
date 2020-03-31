@@ -1,5 +1,5 @@
 function get (author) {
-  author.send('**Hi! Type `ocaml h` to show help.**')
+  author.send(':camel: **Hi! Type `ocaml h` to show help.**')
   console.log(author)
 }
 

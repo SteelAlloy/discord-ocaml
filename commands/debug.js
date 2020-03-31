@@ -1,7 +1,8 @@
 const Discord = require('discord.js')
 const prettyBytes = require('pretty-bytes')
 const { execute } = require('./_utils')
-const { processes, processRunning } = require('../src/processManager')
+const { processRunning } = require('../src/processManager')
+const ocaml = require('../src/ocaml')
 
 function debug (channel, args) {
   console.log(args)
@@ -23,7 +24,7 @@ function debug (channel, args) {
 
 async function debugProcess (channel) {
   if (processRunning(channel)) {
-    const process = processes.get(channel.id)
+    const process = ocaml.processes.get(channel.id)
     const snapshot = await execute(`ps -p ${process.pid} -o %cpu,%mem,etime,cputime h`)
     const stats = snapshot.replace(/(^\s+|\s+$)/g, '').replace(/\s+/g, ' ').split(' ')
     console.log(stats)
@@ -39,11 +40,12 @@ async function debugProcess (channel) {
     channel.send(embed)
   } else {
     console.log("No process was found for this channel. Couldn't debug process.")
-    channel.send("**No process was found for this channel. Couldn't debug process.**")
+    channel.send(":information_source: **No process was found for this channel. Couldn't debug process.**")
   }
 }
 
 function debugBot (channel) {
+  const cpu = new Date(process.cpuUsage().user / 1000)
   const memory = process.memoryUsage()
   const embed = new Discord.MessageEmbed()
     .setColor('#ee760e')
@@ -54,6 +56,7 @@ function debugBot (channel) {
     .addField('Allocated heap', prettyBytes(memory.heapTotal), true)
     .addField('Used memory', prettyBytes(memory.heapUsed), true)
     .addField('External memory', prettyBytes(memory.external), true)
+    .addField('Time spent on CPU', `${cpu.getSeconds()}s${cpu.getMilliseconds()}ms`, true)
   channel.send(embed)
 }
 
