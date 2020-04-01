@@ -37,6 +37,7 @@ client.once('disconnect', () => {
 
 client.on('guildCreate', guild => {
   logger.info({ message: `New guild joined: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!` })
+  getCommand(guild.owner)
 })
 
 client.on('guildDelete', guild => {
@@ -46,7 +47,7 @@ client.on('guildDelete', guild => {
 client.on('message', async message => {
   if (message.author.bot) return
 
-  if (message.content.indexOf(config.toplevelPrefix) === 0 || message.content.indexOf(config.prefix) === 0) {
+  if (message.content.indexOf(config.toplevelPrefix) === 0 || message.content.toLowerCase().indexOf(config.prefix) === 0) {
     logger.info({ message: `${message.author} sent: ${message.content}`, id: message.channel.id })
   } else return
 
@@ -59,7 +60,7 @@ client.on('message', async message => {
   const command = args.shift().toLowerCase()
   switch (command) {
     case 'get':
-      getCommand(message)
+      getCommand(message.author)
       break
 
     case 'version':
