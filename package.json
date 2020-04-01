@@ -1,6 +1,6 @@
 {
   "description": "Runs OCaml code via chat on Discord",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "scripts": {
     "start": "pm2 start 0"
   },

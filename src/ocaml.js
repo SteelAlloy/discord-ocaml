@@ -71,12 +71,12 @@ function runProcess (channel) {
     willEnd.delete(channel.id)
     writeStreams.delete(channel.id)
 
-    if (code !== 0 && code !== null) {
+    if (code === 0 || code === null) {
       logger.verbose({ message: `Child process exited with code ${code}`, id })
-      channel.send(`:warning: **Process exited with code ${code}.**`)
+      channel.send(':white_check_mark: **Process exited without errors.**')
     } else {
       logger.warn({ message: `Child process exited with code ${code}`, id })
-      channel.send(':white_check_mark: **Process exited without errors.**')
+      channel.send(`:warning: **Process exited with code ${code}.**`)
     }
   })
 
